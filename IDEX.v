@@ -1,7 +1,7 @@
 module IDEX (
     input             clk,
     reset,
-    input      [ 3:0] funct3_in,          //funct3 of instruction from instruction memory
+    input      [ 2:0] funct3_in,          //funct3 of instruction from instruction memory
     input             funct7_5_in,
     input      [31:0] instr_address_in,   //adder input, ouput of IFID carried forward
     input      [31:0] rd1_in,             //from regfile
@@ -24,7 +24,7 @@ module IDEX (
     output reg [31:0] imm_data_out,
     output reg [31:0] rd1_out,            //2bit mux
     output reg [31:0] rd2_out,            //2bit mux
-    output reg [ 3:0] funct3_out,
+    output reg [ 2:0] funct3_out,
     output reg        funct7_5_out,
     output reg        branch_out,
     memtoreg_out,
