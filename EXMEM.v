@@ -29,7 +29,7 @@ module EXMEM (
       adder_out          <= 32'b0;
       zero_out           <= 1'b0;
       alu_result_out     <= 32'b0;
-      writedata_out      <= 64'b0;
+      writedata_out      <= 32'b0;
       rd_out             <= 5'b0;
       branch_out         <= 1'b0;
       memtoreg_out       <= 1'b0;
