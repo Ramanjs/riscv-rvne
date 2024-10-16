@@ -14,7 +14,9 @@ module IDEX (
     memtoreg_in,
     memwrite_in,
     aluSrc_in,
-    regwrite_in,  //from control unit
+    regwrite_in,
+    WVRwrite_in,
+    SVRwrite_in,  //from control unit
     input      [ 1:0] aluop_in,
     input             flush,
     output reg [31:0] instr_address_out,
@@ -31,6 +33,8 @@ module IDEX (
     memwrite_out,
     regwrite_out,
     aluSrc_out,
+    WVRwrite_out,
+    SVRwrite_out,
     output reg [ 1:0] aluop_out
 );
 
@@ -51,22 +55,26 @@ module IDEX (
       regwrite_out      <= 1'b0;
       aluSrc_out        <= 1'b0;
       aluop_out         <= 2'b0;
+      WVRwrite_out      <= 1'b0;
+      SVRwrite_out      <= 1'b0;
     end else begin
       instr_address_out <= instr_address_in;
-      rs1_out <= rs1_in;
-      rs2_out <= rs2_in;
-      rd_out <= rd_in;
-      imm_data_out <= imm_data_in;
-      rd1_out <= rd1_in;
-      rd2_out <= rd2_in;
-      funct3_out <= funct3_in; //when connecting in top module Funct4 is wire containing this section of 31 bit instruction {instruction[30],instruction[14:12]}
-      funct7_5_out <= funct7_5_in;
-      branch_out <= branch_in;
-      memtoreg_out <= memtoreg_in;
-      memwrite_out <= memwrite_in;
-      regwrite_out <= regwrite_in;
-      aluSrc_out <= aluSrc_in;
-      aluop_out <= aluop_in;
+      rs1_out           <= rs1_in;
+      rs2_out           <= rs2_in;
+      rd_out            <= rd_in;
+      imm_data_out      <= imm_data_in;
+      rd1_out           <= rd1_in;
+      rd2_out           <= rd2_in;
+      funct3_out        <= funct3_in;
+      funct7_5_out      <= funct7_5_in;
+      branch_out        <= branch_in;
+      memtoreg_out      <= memtoreg_in;
+      memwrite_out      <= memwrite_in;
+      regwrite_out      <= regwrite_in;
+      aluSrc_out        <= aluSrc_in;
+      aluop_out         <= aluop_in;
+      WVRwrite_out      <= WVRwrite_in;
+      SVRwrite_out      <= SVRwrite_in;
     end
   end
 endmodule
