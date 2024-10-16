@@ -36,7 +36,7 @@ module riscv (
 
 
   // Writeback wires
-  wire [31:0] writeData, readdata_W, aluResult_W;
+  wire [31:0] writeData_W, readdata_W, aluResult_W;
   wire [4:0] rd_W;
   wire memtoreg_W, regwrite_W;
 
@@ -104,7 +104,7 @@ module riscv (
       .ra1(rs1),
       .ra2(rs2),
       .wa3(rd_W),
-      .wd (writeData),
+      .wd (writeData_W),
       .rd1(rd1),
       .rd2(rd2)
   );
@@ -159,14 +159,14 @@ module riscv (
   );
   mux3 forwardingmux1 (
       .in1(rd1_E),
-      .in2(writeData),
+      .in2(writeData_W),
       .in3(aluResult_M),
       .sel(forwardA),
       .out(aluA)
   );
   mux3 forwardingmux2 (
       .in1(rd2_E),
-      .in2(writeData),
+      .in2(writeData_W),
       .in3(aluResult_M),
       .sel(forwardB),
       .out(aluB)
@@ -245,4 +245,11 @@ module riscv (
       .regwrite_out  (regwrite_W)
   );
 
+  // Writeback Stage
+  mux2 memregMux (
+      .d0(aluResult_W),
+      .d1(readdata_W),
+      .s (memtoreg_W),
+      .y (writeData_W)
+  );
 endmodule
