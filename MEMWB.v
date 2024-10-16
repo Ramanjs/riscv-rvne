@@ -13,7 +13,7 @@ module MEMWB (
     regwrite_out
 );
 
-  always @(posedge clk) begin
+  always @(posedge clk or posedge reset) begin
     if (reset == 1'b1) begin
       readdata_out   <= 32'b0;
       alu_result_out <= 32'b0;
