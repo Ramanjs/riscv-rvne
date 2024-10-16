@@ -30,14 +30,15 @@ module riscv (
 
 
   // Memory wires
-  wire [31:0] aluResult_M, PC_M, writeData_M;
+  wire [31:0] aluResult_M, PC_M, writeData_M, readdata_M;
   wire [4:0] rd_M;
   wire zero_M, branch_M, memtoreg_M, memwrite_M, regwrite_M;
 
+
   // Writeback wires
-  wire [31:0] writeData;
-  wire [ 4:0] rd_W;
-  wire        regwrite_W;
+  wire [31:0] writeData, readdata_W, aluResult_W;
+  wire [4:0] rd_W;
+  wire memtoreg_W, regwrite_W;
 
   // Instruction Fetch Stage
   program_counter pc (
@@ -216,6 +217,32 @@ module riscv (
       .memtoreg_out  (memtoreg_M),
       .memwrite_out  (memwrite_M),
       .regwrite_out  (regwrite_M)
+  );
+
+  // Memory Stage
+  assign takeBranch = branch_M & zero_M;
+
+  data_memory dmem (
+      .clk(clk),
+      .a  (aluResult_M),
+      .wd (writeData_M),
+      .we (memwrite_M),
+      .rd (readdata_M)
+  );
+
+  MEMWB memwb_reg (
+      .clk           (clk),
+      .reset         (reset),
+      .readdata_in   (readdata_M),
+      .alu_result_in (aluResult_M),
+      .rd_in         (rd_M),
+      .memtoreg_in   (memtoreg_M),
+      .regwrite_in   (regwrite_M),
+      .readdata_out  (readdata_W),
+      .alu_result_out(aluResult_W),
+      .rd_out        (rd_W),
+      .memtoreg_out  (memtoreg_W),
+      .regwrite_out  (regwrite_W)
   );
 
 endmodule
