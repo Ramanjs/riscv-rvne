@@ -34,7 +34,7 @@ module IDEX (
     output reg [ 1:0] aluop_out
 );
 
-  always @(posedge clk) begin
+  always @(posedge clk or posedge reset) begin
     if (reset == 1'b1 || flush == 1'b1) begin
       instr_address_out <= 32'b0;
       rs1_out           <= 5'b0;
@@ -43,7 +43,7 @@ module IDEX (
       imm_data_out      <= 32'b0;
       rd1_out           <= 32'b0;
       rd2_out           <= 32'b0;
-      funct3_out        <= 4'b0;
+      funct3_out        <= 3'b0;
       funct7_5_out      <= 1'b0;
       branch_out        <= 1'b0;
       memtoreg_out      <= 1'b0;
