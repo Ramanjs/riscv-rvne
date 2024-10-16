@@ -4,7 +4,7 @@ module riscv (
 );
 
   // Instruction Fetch wires
-  wire [31:0] PC_in, PC_out, nextPC_in, PC_M;
+  wire [31:0] PC_in, PC_out, nextPC_in;
   wire [31:0] instruction;
 
 
@@ -18,19 +18,26 @@ module riscv (
 
 
   // Execute wires
-  wire [31:0] PC_E, imm_data_E, rd1_E, rd2_E;
+  wire [31:0] PC_E, imm_data_E, rd1_E, rd2_E, branchPC, aluA, aluB, aluFinalB, aluResult;
   wire [4:0] rs1_E, rs2_E, rd_E;
+  wire [3:0] operation;
   wire [2:0] funct3_E;
-  wire [1:0] aluop_E;
-  wire funct7_5_E, branch_E, memtoreg_E, memwrite_E, regwrite_E, aluSrc_E;
+  wire [1:0] aluop_E, forwardA, forwardB;
+  wire funct7_5_E, branch_E, memtoreg_E, memwrite_E, regwrite_E, aluSrc_E, zero;
+
 
   wire stall, takeBranch, flush;
 
 
+  // Memory wires
+  wire [31:0] aluResult_M, PC_M, writeData_M;
+  wire [4:0] rd_M;
+  wire zero_M, branch_M, memtoreg_M, memwrite_M, regwrite_M;
+
   // Writeback wires
+  wire [31:0] writeData;
   wire [ 4:0] rd_W;
   wire        regwrite_W;
-  wire [31:0] writeData;
 
   // Instruction Fetch Stage
   program_counter pc (
@@ -135,6 +142,80 @@ module riscv (
       .regwrite_out     (regwrite_E),
       .aluSrc_out       (aluSrc_E),
       .aluop_out        (aluop_E)
+  );
+
+  // Execute Stage
+  alu_control aluct (
+      .aluop    (aluop_E),
+      .funct3   (funct3_E),
+      .funct7_5 (funct7_5_E),
+      .operation(operation)
+  );
+  adder branch_adder (
+      .a  (PC_E),
+      .b  (imm_data_E << 1),
+      .out(branchPC)
+  );
+  mux3 forwardingmux1 (
+      .in1(rd1_E),
+      .in2(writeData),
+      .in3(aluResult_M),
+      .sel(forwardA),
+      .out(aluA)
+  );
+  mux3 forwardingmux2 (
+      .in1(rd2_E),
+      .in2(writeData),
+      .in3(aluResult_M),
+      .sel(forwardB),
+      .out(aluB)
+  );
+  forwarding_unit fu (
+      .rs1        (rs1_E),
+      .rs2        (rs2_E),
+      .rd_M       (rd_M),
+      .rd_WB      (rd_W),
+      .regWrite_WB(regwrite_W),
+      .regWrite_M (regwrite_M),
+      .forward_A  (forwardA),
+      .forward_B  (forwardB)
+  );
+  mux2 aluSrcMux (
+      .d0(aluB),
+      .d1(imm_data_E),
+      .s (aluSrc_E),
+      .y (aluFinalB)
+  );
+  alu aluex (
+      .a     (aluA),
+      .b     (aluFinalB),
+      .aluop (operation),
+      .result(aluResult),
+      .zero  (zero)
+  );
+
+  EXMEM exmem_reg (
+      .clk           (clk),
+      .reset         (reset),
+      .adder_in      (branchPC),
+      .alu_result_in (aluResult),
+      .zero_in       (zero),
+      .writedata_in  (aluB),
+      .rd_in         (rd_E),
+      .branch_in     (branch_E),
+      .memtoreg_in   (memtoreg_E),
+      .memwrite_in   (memwrite_E),
+      .regwrite_in   (regwrite_E),
+      .flush         (flush),
+      .adder_out     (PC_M),
+      .zero_out      (zero_M),
+      .alu_result_out(aluResult_M),
+      .writedata_out (writeData_M),
+      .rd_out        (rd_M),
+      .branch_out    (branch_M),
+      .memtoreg_out  (memtoreg_M),
+      .memwrite_out  (memwrite_M),
+      .regwrite_out  (regwrite_M)
   );
 
 endmodule
