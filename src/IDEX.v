@@ -18,6 +18,7 @@ module IDEX (
     WVRwrite_in,
     SVRwrite_in,  //from control unit
     input      [ 1:0] aluop_in,
+    input      [ 1:0] VL_in,
     input             flush,
     output reg [31:0] instr_address_out,
     output reg [ 4:0] rs1_out,
@@ -35,7 +36,8 @@ module IDEX (
     aluSrc_out,
     WVRwrite_out,
     SVRwrite_out,
-    output reg [ 1:0] aluop_out
+    output reg [ 1:0] aluop_out,
+    output reg [ 1:0] VL_out
 );
 
   always @(posedge clk or posedge reset) begin
@@ -57,6 +59,7 @@ module IDEX (
       aluop_out         <= 2'b0;
       WVRwrite_out      <= 1'b0;
       SVRwrite_out      <= 1'b0;
+      VL_out            <= 2'b00;
     end else begin
       instr_address_out <= instr_address_in;
       rs1_out           <= rs1_in;
@@ -75,6 +78,7 @@ module IDEX (
       aluop_out         <= aluop_in;
       WVRwrite_out      <= WVRwrite_in;
       SVRwrite_out      <= SVRwrite_in;
+      VL_out            <= VL_in;
     end
   end
 endmodule

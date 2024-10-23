@@ -12,6 +12,7 @@ module EXMEM (
     regwrite_in,
     WVRwrite_in,
     SVRwrite_in,
+    input      [ 1:0] VL_in,
     input             flush,
     output reg [31:0] adder_out,
     output reg        zero_out,
@@ -23,7 +24,8 @@ module EXMEM (
     memwrite_out,
     regwrite_out,
     WVRwrite_out,
-    SVRwrite_out
+    SVRwrite_out,
+    output reg [ 1:0] VL_out
 );
 
   always @(posedge clk or posedge reset) begin
@@ -39,6 +41,7 @@ module EXMEM (
       regwrite_out   <= 1'b0;
       WVRwrite_out   <= 1'b0;
       SVRwrite_out   <= 1'b0;
+      VL_out         <= 2'b00;
     end else begin
       adder_out      <= adder_in;
       zero_out       <= zero_in;
@@ -51,6 +54,7 @@ module EXMEM (
       regwrite_out   <= regwrite_in;
       WVRwrite_out   <= WVRwrite_in;
       SVRwrite_out   <= SVRwrite_in;
+      VL_out         <= VL_in;
     end
   end
 endmodule
