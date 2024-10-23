@@ -13,7 +13,7 @@ module riscv (
   wire [6:0] opcode, funct7;
   wire [4:0] rd, rs1, rs2;
   wire [2:0] funct3;
-  wire [1:0] aluop;
+  wire [1:0] aluop, VL;
   wire branch, memwrite, memtoreg, aluSrc, regwrite, WVRwrite, SVRwrite;
 
 
@@ -22,7 +22,7 @@ module riscv (
   wire [4:0] rs1_E, rs2_E, rd_E;
   wire [3:0] operation;
   wire [2:0] funct3_E;
-  wire [1:0] aluop_E, forwardA, forwardB;
+  wire [1:0] aluop_E, forwardA, forwardB, VL_E;
   wire funct7_5_E, branch_E, memtoreg_E, memwrite_E, regwrite_E, aluSrc_E, zero;
   wire WVRwrite_E, SVRwrite_E;
 
@@ -31,15 +31,19 @@ module riscv (
 
 
   // Memory wires
+  wire [511:0] readdata512_M;
   wire [31:0] aluResult_M, PC_M, writeData_M, readdata_M;
   wire [4:0] rd_M;
+  wire [1:0] VL_M;
   wire zero_M, branch_M, memtoreg_M, memwrite_M, regwrite_M;
   wire WVRwrite_M, SVRwrite_M;
 
 
   // Writeback wires
+  wire [511:0] readdata512_W;
   wire [31:0] writeData_W, readdata_W, aluResult_W;
   wire [4:0] rd_W;
+  wire [1:0] VL_W;
   wire memtoreg_W, regwrite_W, WVRwrite_W, SVRwrite_W;
 
 
@@ -107,7 +111,8 @@ module riscv (
       .regwrite(regwrite),
       .WVRwrite(WVRwrite),
       .SVRwrite(SVRwrite),
-      .aluop   (aluop)
+      .aluop   (aluop),
+      .VL      (VL)
   );
   imm_extractor extractor (
       .instruction(instruction_D),
@@ -144,6 +149,7 @@ module riscv (
       .WVRwrite_in      (WVRwrite),
       .SVRwrite_in      (SVRwrite),
       .aluop_in         (aluop),
+      .VL_in            (VL),
       .flush            (flush),
       .instr_address_out(PC_E),
       .rs1_out          (rs1_E),
@@ -161,7 +167,8 @@ module riscv (
       .WVRwrite_out     (WVRwrite_E),
       .SVRwrite_out     (SVRwrite_E),
       .aluSrc_out       (aluSrc_E),
-      .aluop_out        (aluop_E)
+      .aluop_out        (aluop_E),
+      .VL_out           (VL_E)
   );
 
   // Execute Stage
@@ -228,6 +235,7 @@ module riscv (
       .regwrite_in   (regwrite_E),
       .WVRwrite_in   (WVRwrite_E),
       .SVRwrite_in   (SVRwrite_E),
+      .VL_in         (VL_E),
       .flush         (flush),
       .adder_out     (PC_M),
       .zero_out      (zero_M),
@@ -239,7 +247,8 @@ module riscv (
       .memwrite_out  (memwrite_M),
       .regwrite_out  (regwrite_M),
       .WVRwrite_out  (WVRwrite_M),
-      .SVRwrite_out  (SVRwrite_M)
+      .SVRwrite_out  (SVRwrite_M),
+      .VL_out        (VL_M)
   );
 
   // Memory Stage
@@ -250,26 +259,31 @@ module riscv (
       .a  (aluResult_M),
       .wd (writeData_M),
       .we (memwrite_M),
-      .rd (readdata_M)
+      .rd1(readdata_M),
+      .rd2(readdata512_M)
   );
 
   MEMWB memwb_reg (
-      .clk           (clk),
-      .reset         (reset),
-      .readdata_in   (readdata_M),
-      .alu_result_in (aluResult_M),
-      .rd_in         (rd_M),
-      .memtoreg_in   (memtoreg_M),
-      .regwrite_in   (regwrite_M),
-      .WVRwrite_in   (WVRwrite_M),
-      .SVRwrite_in   (SVRwrite_M),
-      .readdata_out  (readdata_W),
-      .alu_result_out(aluResult_W),
-      .rd_out        (rd_W),
-      .memtoreg_out  (memtoreg_W),
-      .regwrite_out  (regwrite_W),
-      .WVRwrite_out  (WVRwrite_W),
-      .SVRwrite_out  (SVRwrite_W)
+      .clk            (clk),
+      .reset          (reset),
+      .readdata_in    (readdata_M),
+      .readdata512_in (readdata512_M),
+      .alu_result_in  (aluResult_M),
+      .rd_in          (rd_M),
+      .memtoreg_in    (memtoreg_M),
+      .regwrite_in    (regwrite_M),
+      .WVRwrite_in    (WVRwrite_M),
+      .SVRwrite_in    (SVRwrite_M),
+      .VL_in          (VL_M),
+      .readdata_out   (readdata_W),
+      .readdata512_out(readdata512_W),
+      .alu_result_out (aluResult_W),
+      .rd_out         (rd_W),
+      .memtoreg_out   (memtoreg_W),
+      .regwrite_out   (regwrite_W),
+      .WVRwrite_out   (WVRwrite_W),
+      .SVRwrite_out   (SVRwrite_W),
+      .VL_out         (VL_W)
   );
 
   // Writeback Stage
@@ -285,18 +299,20 @@ module riscv (
   WVR wvr_reg (
       .clk(clk),
       .we (WVRwrite_W),
+      .VL (VL_W),
       .ra (wvr_readaddr),
       .wa (rd_W),
-      .wd (writeData_W),
+      .wd (readdata512_W),
       .rd (wvr_readdata)
   );
 
   SVR svr_reg (
       .clk(clk),
       .we (SVRwrite_W),
+      .VL (VL_W),
       .ra (svr_readaddr),
       .wa (rd_W),
-      .wd (writeData_W),
+      .wd (readdata512_W),
       .rd (svr_readdata)
   );
   /********** Neuromorphic Core **********/
