@@ -3,7 +3,7 @@ module instruction_memory (
     output reg [31:0] instruction
 );
 
-  reg [31:0] RAM[127:0];
+  reg [31:0] RAM[128];
   initial begin
     $readmemh("memfile.dat", RAM);
   end
