@@ -15,7 +15,7 @@ module testbench ();
     clk   = 0;
     reset = 1;
     #5 reset = 0;
-    #75 $stop;
+    #100 $stop;
   end
 
   always #5 clk = ~clk;
