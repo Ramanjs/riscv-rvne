@@ -20,6 +20,7 @@ opcodes = {
     'lw.sv': '0000010',
     'lh.sv': '0000010',
     'la.sv': '0000010',
+    'lw.vt': '0110011',
     'sw':  '0100011',  # Store word
     'beq': '1100011',  # Branch equal
     'addi': '0010011',  # Add immediate
@@ -35,6 +36,7 @@ func3 = {
     'lw.sv': '011',
     'lh.sv': '100',
     'la.sv': '101',
+    'lw.vt': '111',
     'sw':   '010',
     'beq':  '000',
     'addi': '000',
@@ -44,6 +46,7 @@ func3 = {
 
 func7 = {
     'sub': '0100000',
+    'lw.vt': '0000001',
     'and': '0000000'
 }
 
@@ -54,7 +57,7 @@ def assemble_instruction(instruction):
     parts = instruction.split()
     inst = parts[0]
     
-    if inst[0:2] == 'lw' or inst[0:2] == 'lh' or inst[0:2] == 'la':
+    if (inst[0:2] == 'lw' or inst[0:2] == 'lh' or inst[0:2] == 'la') and (inst != 'lw.vt'):
         rd = registers[parts[1]]
         offset, rs1 = re.match(r'(-?\d+)\((x\d+)\)', parts[2]).groups()
         imm = imm_to_bin(offset, 12)
@@ -98,6 +101,15 @@ def assemble_instruction(instruction):
         rd = registers[parts[1]]
         rs1 = registers[parts[2]]
         rs2 = registers[parts[3]]
+        opcode = opcodes[inst]
+        f3 = func3[inst]
+        f7 = func7[inst]
+        return f"{f7}{rs2}{rs1}{f3}{rd}{opcode}"
+
+    elif inst == 'lw.vt':
+        rd = registers['x0']
+        rs1 = registers[parts[1]]
+        rs2 = registers[parts[2]]
         opcode = opcodes[inst]
         f3 = func3[inst]
         f7 = func7[inst]
