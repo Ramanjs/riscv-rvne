@@ -1,43 +1,55 @@
 module IDEX (
-    input             clk,
+    input              clk,
     reset,
-    input      [ 2:0] funct3_in,          //funct3 of instruction from instruction memory
-    input             funct7_5_in,
-    input      [31:0] instr_address_in,   //adder input, ouput of IFID carried forward
-    input      [31:0] rd1_in,             //from regfile
-    input      [31:0] rd2_in,             //from regfile
-    input      [31:0] imm_data_in,        //from data extractor
-    input      [ 4:0] rs1_in,             //from instruction parser
-    input      [ 4:0] rs2_in,             //from instruction parser
-    input      [ 4:0] rd_in,              //from instruction parser
-    input             branch_in,
+    input      [  2:0] funct3_in,          //funct3 of instruction from instruction memory
+    input              funct7_5_in,
+    input      [ 31:0] instr_address_in,   //adder input, ouput of IFID carried forward
+    input      [ 31:0] rd1_in,             //from regfile
+    input      [ 31:0] rd2_in,             //from regfile
+    input      [ 31:0] imm_data_in,        //from data extractor
+    input      [511:0] wvr_readdata_in,
+    input      [127:0] svr_readdata_in,
+    input      [ 31:0] nsr_readdata_in,
+    input      [  4:0] rs1_in,             //from instruction parser
+    input      [  4:0] rs2_in,             //from instruction parser
+    input      [  4:0] rd_in,              //from instruction parser
+    input              branch_in,
     memtoreg_in,
     memwrite_in,
     aluSrc_in,
     regwrite_in,
     WVRwrite_in,
     SVRwrite_in,  //from control unit
-    input      [ 1:0] aluop_in,
-    input      [ 1:0] VL_in,
-    input             flush,
-    output reg [31:0] instr_address_out,
-    output reg [ 4:0] rs1_out,
-    output reg [ 4:0] rs2_out,
-    output reg [ 4:0] rd_out,
-    output reg [31:0] imm_data_out,
-    output reg [31:0] rd1_out,            //2bit mux
-    output reg [31:0] rd2_out,            //2bit mux
-    output reg [ 2:0] funct3_out,
-    output reg        funct7_5_out,
-    output reg        branch_out,
+    NSRwrite_in,
+    NACC_VL_in,
+    SorNACC_in,
+    input      [  1:0] aluop_in,
+    input      [  1:0] VL_in,
+    input              flush,
+    output reg [ 31:0] instr_address_out,
+    output reg [  4:0] rs1_out,
+    output reg [  4:0] rs2_out,
+    output reg [  4:0] rd_out,
+    output reg [ 31:0] imm_data_out,
+    output reg [ 31:0] rd1_out,            //2bit mux
+    output reg [ 31:0] rd2_out,            //2bit mux
+    output reg [511:0] wvr_readdata_out,
+    output reg [127:0] svr_readdata_out,
+    output reg [ 31:0] nsr_readdata_out,
+    output reg [  2:0] funct3_out,
+    output reg         funct7_5_out,
+    output reg         branch_out,
     memtoreg_out,
     memwrite_out,
     regwrite_out,
     aluSrc_out,
     WVRwrite_out,
     SVRwrite_out,
-    output reg [ 1:0] aluop_out,
-    output reg [ 1:0] VL_out
+    NSRwrite_out,
+    NACC_VL_out,
+    SorNACC_out,
+    output reg [  1:0] aluop_out,
+    output reg [  1:0] VL_out
 );
 
   always @(posedge clk or posedge reset) begin
@@ -60,6 +72,12 @@ module IDEX (
       WVRwrite_out      <= 1'b0;
       SVRwrite_out      <= 1'b0;
       VL_out            <= 2'b00;
+      wvr_readdata_out  <= 512'b0;
+      svr_readdata_out  <= 128'b0;
+      nsr_readdata_out  <= 32'b0;
+      NSRwrite_out      <= 1'b0;
+      NACC_VL_out       <= 1'b0;
+      SorNACC_out       <= 1'b0;
     end else begin
       instr_address_out <= instr_address_in;
       rs1_out           <= rs1_in;
@@ -79,6 +97,12 @@ module IDEX (
       WVRwrite_out      <= WVRwrite_in;
       SVRwrite_out      <= SVRwrite_in;
       VL_out            <= VL_in;
+      wvr_readdata_out  <= wvr_readdata_in;
+      svr_readdata_out  <= svr_readdata_in;
+      nsr_readdata_out  <= nsr_readdata_in;
+      NSRwrite_out      <= NSRwrite_in;
+      NACC_VL_out       <= NACC_VL_in;
+      SorNACC_out       <= SorNACC_in;
     end
   end
 endmodule

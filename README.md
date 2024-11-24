@@ -137,3 +137,14 @@ la.sv:
 | imm[11:0] | rs1[4:0] | funct3[2:0] | hint[0] | rd[3:0] | opcode[6:0] |
 | --- | --- | --- | --- | --- | --- |
 | offset | base | 101 | hint | SVR_dst | 0000010 |
+
+### Neuron current computing instructions
+
+| funct7[6:0] | rs2[4:0] | rs1[4:0] | funct3[2:0] | rd[4:0] | opcode[6:0] |
+| --- | --- | --- | --- | --- | --- |
+| 111 0000 | SVR_src | WVR_src | convh | NSR_dst | 0110010 |
+| 111 0001 | SVR_src | WVR_src | conva | NSR_dst | 0110010 |
+| 111 0010 | SVR_src | WVR_src | convmh | NSR_dst | 0110010 |
+| 111 0011 | SVR_src | WVR_src | convma | NSR_dst | 0110010 |
+| 111 0100 | SVR_src | WVR_src | doth | NSR_dst | 0110010 |
+| 111 0101 | SVR_src | WVR_src | dota | NSR_dst | 0110010 |

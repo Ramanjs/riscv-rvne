@@ -1,11 +1,11 @@
 module WVR (
-    input          clk,
-    input          we,
-    input  [  1:0] VL,
-    input  [  4:0] ra,
-    input  [  4:0] wa,
-    input  [511:0] wd,
-    output [ 31:0] rd
+    input              clk,
+    input              we,
+    input      [  1:0] VL,
+    input      [  4:0] ra,
+    input      [  4:0] wa,
+    input      [511:0] wd,
+    output reg [511:0] rd
 );
 
   reg     [31:0] rf[31];
@@ -25,5 +25,10 @@ module WVR (
     end
   end
 
-  assign rd = rf[ra];
+  integer j;
+  always @(*) begin
+    for (j = 0; j < 16; j = j + 1) begin
+      rd[32*j+:32] = rf[ra+j];
+    end
+  end
 endmodule
