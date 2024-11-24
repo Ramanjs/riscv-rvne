@@ -9,6 +9,7 @@ module MEMWB (
     regwrite_in,
     WVRwrite_in,
     SVRwrite_in,  //ex mem output as mem wb inputs
+    NSRwrite1_in,
     input      [  1:0] VL_in,
     output reg [ 31:0] readdata_out,     //1bit
     output reg [511:0] readdata512_out,
@@ -18,6 +19,7 @@ module MEMWB (
     regwrite_out,
     WVRwrite_out,
     SVRwrite_out,
+    NSRwrite1_out,
     output reg [  1:0] VL_out
 );
 
@@ -31,6 +33,7 @@ module MEMWB (
       regwrite_out    <= 1'b0;
       WVRwrite_out    <= 1'b0;
       SVRwrite_out    <= 1'b0;
+      NSRwrite1_out   <= 1'b0;
       VL_out          <= 2'b00;
     end else begin
       readdata_out    <= readdata_in;
@@ -41,6 +44,7 @@ module MEMWB (
       regwrite_out    <= regwrite_in;
       WVRwrite_out    <= WVRwrite_in;
       SVRwrite_out    <= SVRwrite_in;
+      NSRwrite1_out   <= NSRwrite1_in;
       VL_out          <= VL_in;
     end
   end

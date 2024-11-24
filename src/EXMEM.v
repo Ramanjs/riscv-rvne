@@ -12,6 +12,7 @@ module EXMEM (
     regwrite_in,
     WVRwrite_in,
     SVRwrite_in,
+    NSRwrite1_in,
     input      [ 1:0] VL_in,
     input             flush,
     output reg [31:0] adder_out,
@@ -25,6 +26,7 @@ module EXMEM (
     regwrite_out,
     WVRwrite_out,
     SVRwrite_out,
+    NSRwrite1_out,
     output reg [ 1:0] VL_out
 );
 
@@ -41,6 +43,7 @@ module EXMEM (
       regwrite_out   <= 1'b0;
       WVRwrite_out   <= 1'b0;
       SVRwrite_out   <= 1'b0;
+      NSRwrite1_out  <= 1'b0;
       VL_out         <= 2'b00;
     end else begin
       adder_out      <= adder_in;
@@ -54,6 +57,7 @@ module EXMEM (
       regwrite_out   <= regwrite_in;
       WVRwrite_out   <= WVRwrite_in;
       SVRwrite_out   <= SVRwrite_in;
+      NSRwrite1_out  <= NSRwrite1_in;
       VL_out         <= VL_in;
     end
   end

@@ -21,6 +21,7 @@ module IDEX (
     WVRwrite_in,
     SVRwrite_in,  //from control unit
     NSRwrite_in,
+    NSRwrite1_in,
     NACC_VL_in,
     SorNACC_in,
     input      [  1:0] aluop_in,
@@ -46,6 +47,7 @@ module IDEX (
     WVRwrite_out,
     SVRwrite_out,
     NSRwrite_out,
+    NSRwrite1_out,
     NACC_VL_out,
     SorNACC_out,
     output reg [  1:0] aluop_out,
@@ -76,6 +78,7 @@ module IDEX (
       svr_readdata_out  <= 128'b0;
       nsr_readdata_out  <= 32'b0;
       NSRwrite_out      <= 1'b0;
+      NSRwrite1_out     <= 1'b0;
       NACC_VL_out       <= 1'b0;
       SorNACC_out       <= 1'b0;
     end else begin
@@ -101,6 +104,7 @@ module IDEX (
       svr_readdata_out  <= svr_readdata_in;
       nsr_readdata_out  <= nsr_readdata_in;
       NSRwrite_out      <= NSRwrite_in;
+      NSRwrite1_out     <= NSRwrite1_in;
       NACC_VL_out       <= NACC_VL_in;
       SorNACC_out       <= SorNACC_in;
     end

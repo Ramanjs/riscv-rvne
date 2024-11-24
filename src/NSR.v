@@ -1,14 +1,17 @@
 module NSR (
     input         clk,
     input         we,
+    input         we1,
     input  [ 1:0] VL,
     input  [ 4:0] ra,
     input  [ 4:0] wa,
     input  [31:0] wd,
+    input  [31:0] wd1,
     output [31:0] rd
 );
 
   reg [31:0] CUR[32];
+  reg [31:0] VT;
   //integer        i;
   //always @(posedge clk) begin
   //if (we) begin
@@ -27,6 +30,12 @@ module NSR (
   always @(posedge clk) begin
     if (we) begin
       CUR[wa] <= wd;
+    end
+  end
+
+  always @(posedge clk) begin
+    if (we1) begin
+      VT <= wd1;
     end
   end
 
