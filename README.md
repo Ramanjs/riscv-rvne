@@ -138,6 +138,14 @@ la.sv:
 | --- | --- | --- | --- | --- | --- |
 | offset | base | 101 | hint | SVR_dst | 0000010 |
 
+### Neuron states and parameters loading instructions
+
+lw.vt:
+
+| funct7[6:0] | rs2[4:0] | rs1[4:0] | funct3[2:0] | rd[4:0] | opcode[6:0] |
+| --- | --- | --- | --- | --- | --- |
+| 000 0001 | offset | base | 111 | 00000 | 0000010 |
+
 ### Neuron current computing instructions
 
 | funct7[6:0] | rs2[4:0] | rs1[4:0] | funct3[2:0] | rd[4:0] | opcode[6:0] |
