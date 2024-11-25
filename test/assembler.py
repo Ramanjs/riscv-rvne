@@ -25,7 +25,10 @@ opcodes = {
     'beq': '1100011',  # Branch equal
     'addi': '0010011',  # Add immediate
     'and':  '0110011',  # AND operation
-    'sub':  '0110011'   # SUB operation
+    'sub':  '0110011',   # SUB operation
+    'upds': '0000001',
+    'updg': '0000001',
+    'upda': '0000001'
 }
 
 func3 = {
@@ -41,13 +44,19 @@ func3 = {
     'beq':  '000',
     'addi': '000',
     'and':  '111',
-    'sub':  '000'
+    'sub':  '000',
+    'upds': '000',
+    'updg': '001',
+    'upda': '010',
 }
 
 func7 = {
     'sub': '0100000',
     'lw.vt': '0000001',
-    'and': '0000000'
+    'and': '0000000',
+    'upds': '1110100',
+    'updg': '1110101',
+    'upda': '1110110'
 }
 
 def imm_to_bin(imm, bits):
@@ -114,6 +123,15 @@ def assemble_instruction(instruction):
         f3 = func3[inst]
         f7 = func7[inst]
         return f"{f7}{rs2}{rs1}{f3}{rd}{opcode}"
+    elif inst[0:3] == 'upd':
+        rd = registers[parts[1]]
+        rs1 = registers['x0']
+        rs2 = registers['x0']
+        opcode = opcodes[inst]
+        f3 = func3[inst]
+        f7 = func7[inst]
+        return f"{f7}{rs2}{rs1}{f3}{rd}{opcode}"
+
     
     return None
 
