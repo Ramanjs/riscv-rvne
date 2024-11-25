@@ -13,16 +13,16 @@ module riscv (
   wire [6:0] opcode, funct7;
   wire [4:0] rd, rs1, rs2;
   wire [2:0] funct3;
-  wire [1:0] aluop, VL;
+  wire [1:0] aluop, VL, ns_vl;
   wire branch, memwrite, memtoreg, aluSrc, regwrite, WVRwrite, SVRwrite;
   wire NSRwrite, NSRwrite1, NACC_VL, SorNACC;
 
   // WVR wires
-  wire [511:0] wvr_readdata;
+  wire [511:0] wvr_readdata, cur_out, vol_out;
   // SVR wires
   wire [127:0] svr_readdata;
   // NSR wires
-  wire [ 31:0] nsr_readdata;
+  wire [31:0] nsr_readdata, vt_out;
 
 
   // Execute wires
@@ -30,14 +30,14 @@ module riscv (
   wire [4:0] rs1_E, rs2_E, rd_E;
   wire [3:0] operation;
   wire [2:0] funct3_E;
-  wire [1:0] aluop_E, forwardA, forwardB, VL_E;
+  wire [1:0] aluop_E, forwardA, forwardB, VL_E, ns_vl_E;
   wire funct7_5_E, branch_E, memtoreg_E, memwrite_E, regwrite_E, aluSrc_E, zero;
   wire WVRwrite_E, SVRwrite_E, NSRwrite_E, NSRwrite1_E, NACC_VL_E, SorNACC_E;
 
-  wire [511:0] wvr_readdata_E;
+  wire [511:0] wvr_readdata_E, cur_out_E, vol_out_E, new_vol_out;
   wire [127:0] svr_readdata_E;
-  wire [ 31:0] nsr_readdata_E;
-  wire [ 31:0] NACC_cur;
+  wire [31:0] nsr_readdata_E, vt_out_E;
+  wire [31:0] NACC_cur;
 
 
   wire stall, takeBranch, flush;
@@ -120,6 +120,7 @@ module riscv (
       .NSRwrite (NSRwrite),
       .NSRwrite1(NSRwrite1),
       .NACC_VL  (NACC_VL),
+      .ns_vl    (ns_vl),
       .SorNACC  (SorNACC)
   );
   imm_extractor extractor (
@@ -147,6 +148,9 @@ module riscv (
       .rd2_in           (rd2),
       .imm_data_in      (imm_data),
       .wvr_readdata_in  (wvr_readdata),
+      .cur_in           (cur_out),
+      .vol_in           (vol_out),
+      .vt_in            (vt_out),
       .svr_readdata_in  (svr_readdata),
       .nsr_readdata_in  (nsr_readdata),
       .rs1_in           (rs1),
@@ -165,6 +169,7 @@ module riscv (
       .SorNACC_in       (SorNACC),
       .aluop_in         (aluop),
       .VL_in            (VL),
+      .ns_vl_in         (ns_vl),
       .flush            (flush),
       .instr_address_out(PC_E),
       .rs1_out          (rs1_E),
@@ -174,6 +179,9 @@ module riscv (
       .rd1_out          (rd1_E),
       .rd2_out          (rd2_E),
       .wvr_readdata_out (wvr_readdata_E),
+      .cur_out          (cur_out_E),
+      .vol_out          (vol_out_E),
+      .vt_out           (vt_out_E),
       .svr_readdata_out (svr_readdata_E),
       .nsr_readdata_out (nsr_readdata_E),
       .funct3_out       (funct3_E),
@@ -190,7 +198,8 @@ module riscv (
       .SorNACC_out      (SorNACC_E),
       .aluSrc_out       (aluSrc_E),
       .aluop_out        (aluop_E),
-      .VL_out           (VL_E)
+      .VL_out           (VL_E),
+      .ns_vl_out        (ns_vl_E)
   );
 
   // Execute Stage
@@ -344,14 +353,17 @@ module riscv (
   );
 
   NSR nsr_reg (
-      .clk(clk),
-      .we (NSRwrite_E),
-      .we1(NSRwrite1_W),
-      .wd1(writeData_W),
-      .ra (rd),
-      .wa (rd_E),
-      .wd (NACC_cur),
-      .rd (nsr_readdata)
+      .clk    (clk),
+      .we     (NSRwrite_E),
+      .we1    (NSRwrite1_W),
+      .wd1    (writeData_W),
+      .ra     (rd),
+      .wa     (rd_E),
+      .wd     (NACC_cur),
+      .rd     (nsr_readdata),
+      .cur_out(cur_out),
+      .vol_out(vol_out),
+      .vt_out (vt_out)
   );
 
   // Execute Stage
@@ -361,6 +373,14 @@ module riscv (
       .Cur_in (nsr_readdata_E),
       .VL     (NACC_VL_E),
       .Cur_out(NACC_cur)
+  );
+
+  neuron_state ns (
+      .cur    (cur_out_E),
+      .vol    (vol_out_E),
+      .vt     (vt_out_E),
+      .VL     (ns_vl_E),
+      .vol_out(new_vol_out)
   );
   /********** Neuromorphic Core **********/
 endmodule

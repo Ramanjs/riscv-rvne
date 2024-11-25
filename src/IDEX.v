@@ -8,6 +8,9 @@ module IDEX (
     input      [ 31:0] rd2_in,             //from regfile
     input      [ 31:0] imm_data_in,        //from data extractor
     input      [511:0] wvr_readdata_in,
+    input      [511:0] cur_in,
+    input      [511:0] vol_in,
+    input      [ 31:0] vt_in,
     input      [127:0] svr_readdata_in,
     input      [ 31:0] nsr_readdata_in,
     input      [  4:0] rs1_in,             //from instruction parser
@@ -26,6 +29,7 @@ module IDEX (
     SorNACC_in,
     input      [  1:0] aluop_in,
     input      [  1:0] VL_in,
+    input      [  1:0] ns_vl_in,
     input              flush,
     output reg [ 31:0] instr_address_out,
     output reg [  4:0] rs1_out,
@@ -35,6 +39,9 @@ module IDEX (
     output reg [ 31:0] rd1_out,            //2bit mux
     output reg [ 31:0] rd2_out,            //2bit mux
     output reg [511:0] wvr_readdata_out,
+    output reg [511:0] cur_out,
+    output reg [511:0] vol_out,
+    output reg [ 31:0] vt_out,
     output reg [127:0] svr_readdata_out,
     output reg [ 31:0] nsr_readdata_out,
     output reg [  2:0] funct3_out,
@@ -51,7 +58,8 @@ module IDEX (
     NACC_VL_out,
     SorNACC_out,
     output reg [  1:0] aluop_out,
-    output reg [  1:0] VL_out
+    output reg [  1:0] VL_out,
+    output reg [  1:0] ns_vl_out
 );
 
   always @(posedge clk or posedge reset) begin
@@ -81,6 +89,10 @@ module IDEX (
       NSRwrite1_out     <= 1'b0;
       NACC_VL_out       <= 1'b0;
       SorNACC_out       <= 1'b0;
+      cur_out           <= 512'd0;
+      vol_out           <= 512'd0;
+      vt_out            <= 32'd0;
+      ns_vl_out         <= 2'b00;
     end else begin
       instr_address_out <= instr_address_in;
       rs1_out           <= rs1_in;
@@ -107,6 +119,10 @@ module IDEX (
       NSRwrite1_out     <= NSRwrite1_in;
       NACC_VL_out       <= NACC_VL_in;
       SorNACC_out       <= SorNACC_in;
+      cur_out           <= cur_in;
+      vol_out           <= vol_in;
+      vt_out            <= vt_in;
+      ns_vl_out         <= ns_vl_in;
     end
   end
 endmodule
